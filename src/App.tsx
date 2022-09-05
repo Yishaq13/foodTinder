@@ -1,26 +1,23 @@
-import React from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { ReactElement, useEffect, useState } from 'react'
+import { ProductHttpService } from './Http/Product.http.service'
+import Cards from './Components/Cards'
+import { Product } from './Types/Product.d'
+import { Box } from '@mui/material'
 
-function App() {
+export default function App(): ReactElement {
+  const [products, setProducts] = useState<Product[]>([])
+
+  useEffect(() => {
+    ProductHttpService.getProducts().then((data) => {
+      setProducts(data)
+    })
+  }, [])
+
   return (
-    <div className='App'>
-      <header className='App-header'>
-        <img src={logo} className='App-logo' alt='logo' />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className='App-link'
-          href='https://reactjs.org'
-          target='_blank'
-          rel='noopener noreferrer'
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Box display='flex' justifyContent='center' mt={8}>
+      {products.map((product) => (
+        <Cards key={product.id} product={product} />
+      ))}
+    </Box>
   )
 }
-
-export default App

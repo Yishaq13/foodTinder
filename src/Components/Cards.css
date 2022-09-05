@@ -1,0 +1,14 @@
+.card {
+  position: relative;
+  width: 600px;
+  padding: 20px;
+  height: 50vh;
+  border-radius: 20px;
+  background-size: cover;
+  background-position: Top;
+  background-color: white;
+}
+
+.swipe {
+  position: absolute;
+}
