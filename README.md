@@ -5,10 +5,12 @@
 - [Description](#markdown-header-description)
 - [Running Application](#markdown-header-installation-and-running-the-application)
 - [Summary](#markdown-header-summary)
+- [Packages](#markdown-header-packages)
 
 ## Description
 
 This repo contains the frontend for the foodjiTinder application.
+Application is build with React Typescript. 
 
 ## Installation and running the application
 
@@ -26,3 +28,12 @@ The following thigs have been implemented:
 2. DisLike Functonality
 3. Reset Functionality
 4. Application maintaining state
+
+## Summary
+
+The following packages were installed.
+
+1. Material UI
+2. Eslint
+3. Axios
+4. prettier
