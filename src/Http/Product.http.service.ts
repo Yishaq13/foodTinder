@@ -6,8 +6,6 @@ export class ProductHttpService {
     const response = await axios.get<{ data: ProductsResponse }>(
       'https://amperoid.tenants.foodji.io/machines/4bf115ee-303a-4089-a3ea-f6e7aae0ab94',
     )
-
-    console.log(response)
     return response.data.data.machineProducts
   }
 }
