@@ -2,16 +2,17 @@ import { ReactElement, useEffect, useState } from 'react'
 import { ProductHttpService } from './Http/Product.http.service'
 import Cards from './Components/Cards'
 import { Product } from './Types/Product.d'
-import { Box, Button } from '@mui/material'
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined'
-import ThumbDownOutlinedIcon from '@mui/icons-material/ThumbDownOutlined'
+import { Box, Button, Card, CardContent, Snackbar, Typography } from '@mui/material'
 import RestartAltOutlinedIcon from '@mui/icons-material/RestartAltOutlined'
+import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined'
+import ThumbDownAltOutlinedIcon from '@mui/icons-material/ThumbDownAltOutlined'
 import { Voting } from './Types/Voting'
 
 export default function App(): ReactElement {
   const [products, setProducts] = useState<Product[]>([])
   const [votedItems, setVotedItems] = useState<Voting[]>([])
-  const [refresh, setRefresh] = useState<boolean>(false)
+  const [itemToVote, setItemsToVote] = useState<Product[]>([])
+  const [displayError, setDisplayError] = useState(false)
 
   useEffect(() => {
     let itemsAlreadyVoted: Voting[] = []
@@ -26,52 +27,78 @@ export default function App(): ReactElement {
 
     // filter item which are already voted
     // filter items which are not 'Speisen - Food'
-    ProductHttpService.getProducts().then((data) => {
-      const productsToDisplay = data
-        .filter((food) => food.category.name === 'Speisen - Food' && !votedIds.includes(food.id))
-        .sort((item1, item2) => item1.id.localeCompare(item2.id))
-      setProducts(productsToDisplay)
-    })
-  }, [refresh])
+    ProductHttpService.getProducts()
+      .then((data) => {
+        const productsToDisplay = data.filter((food) => !votedIds.includes(food.id))
+        setProducts(data)
+        setItemsToVote(productsToDisplay)
+      })
+      .catch(() => {
+        setDisplayError(true)
+      })
+  }, [])
 
   useEffect(() => {
     if (votedItems.length) {
+      console.log('memory')
       window.sessionStorage.setItem('votedItems', JSON.stringify(votedItems))
     }
-  }, [votedItems.length])
+  }, [votedItems])
 
-  const HandleSwipe = (vote: Voting) => {
-    setVotedItems((prevState) => [...prevState, vote])
+  const handleVote = (vote: string) => {
+    console.log(vote, itemToVote[0].id)
+    const voteId = itemToVote[0].id
+    setVotedItems((prevState) => [...prevState, { id: voteId, vote: vote }])
+    setItemsToVote((prevState) => [...prevState.filter((item) => item.id !== voteId)])
   }
 
   const HandleReset = () => {
     // reset storage and states
+    console.log('reset called')
     window.sessionStorage.removeItem('votedItems')
     setVotedItems([])
-    setRefresh((prevState) => !prevState)
+    setItemsToVote(products)
   }
 
   return (
     <Box>
       <Box display='flex' justifyContent='center' mt={8} height={500}>
-        {products.map((product) => (
-          <Cards key={product.id} product={product} onSwipe={HandleSwipe} />
-        ))}
+        {itemToVote[0] && <Cards product={itemToVote[0]} />}
+        <Card sx={{ width: 400, height: 500 }} variant='outlined'>
+          <CardContent>
+            <Typography gutterBottom variant='h5' color='text.secondary'>
+              Refresh to Continue.
+            </Typography>
+          </CardContent>
+        </Card>
       </Box>
       <Box display='flex' justifyContent='center' mt={4}>
-        <Box display='flex' justifyContent='space-between' width={400}>
-          <Button variant='contained' color='warning'>
-            <ThumbDownOutlinedIcon />
-          </Button>
-          <Button variant='contained' onClick={() => HandleReset()}>
+        <Box width={400} display='flex' flexDirection='row' justifyContent='space-between'>
+          {itemToVote[0] && (
+            <Button variant='contained' onClick={() => handleVote('Dislike')} color='error'>
+              <ThumbDownAltOutlinedIcon />
+            </Button>
+          )}
+          <Button
+            variant='contained'
+            onClick={() => HandleReset()}
+            color='info'
+            fullWidth={itemToVote.length ? false : true}
+          >
             <RestartAltOutlinedIcon />
           </Button>
-          <Button variant='contained' color='success'>
-            <ThumbUpOutlinedIcon />
-          </Button>
+          {itemToVote[0] && (
+            <Button variant='contained' onClick={() => handleVote('Like')} color='success'>
+              <ThumbUpOutlinedIcon />
+            </Button>
+          )}
         </Box>
       </Box>
+      <Snackbar
+        open={displayError}
+        autoHideDuration={6000}
+        message='Something Went wrong. Please Refresh the page.'
+      />
     </Box>
   )
 }
-;[]
