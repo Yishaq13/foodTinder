@@ -40,13 +40,11 @@ export default function App(): ReactElement {
 
   useEffect(() => {
     if (votedItems.length) {
-      console.log('memory')
       window.sessionStorage.setItem('votedItems', JSON.stringify(votedItems))
     }
   }, [votedItems])
 
   const handleVote = (vote: string) => {
-    console.log(vote, itemToVote[0].id)
     const voteId = itemToVote[0].id
     setVotedItems((prevState) => [...prevState, { id: voteId, vote: vote }])
     setItemsToVote((prevState) => [...prevState.filter((item) => item.id !== voteId)])
@@ -54,7 +52,6 @@ export default function App(): ReactElement {
 
   const HandleReset = () => {
     // reset storage and states
-    console.log('reset called')
     window.sessionStorage.removeItem('votedItems')
     setVotedItems([])
     setItemsToVote(products)
@@ -96,6 +93,7 @@ export default function App(): ReactElement {
       </Box>
       <Snackbar
         open={displayError}
+        onClose={() => setDisplayError(false)}
         autoHideDuration={6000}
         message='Something Went wrong. Please Refresh the page.'
       />
